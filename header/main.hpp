@@ -70,6 +70,7 @@ public:
     void move_shape_left();
     void move_shape_right();
     void add_shape_to_board();
-
+    void clear_lines();
+    bool is_line(int row[GRID_WIDTH]);
     void print();
 };

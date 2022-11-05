@@ -98,13 +98,13 @@ rect(sf::Vector2f(SQUARE_DIM - OUTLINE_SIZE, SQUARE_DIM - OUTLINE_SIZE))
     rect.setOutlineColor(sf::Color::Black);
     rect.setOutlineThickness(OUTLINE_SIZE);
 
-    tetrominos.emplace_back(tetromino(assets::shapes::square, 3, -2, 0, Color::YELLOW));
-    tetrominos.emplace_back(tetromino(assets::shapes::N, 3, -2, 0, Color::GREEN));
-    tetrominos.emplace_back(tetromino(assets::shapes::N_mirrored, 3, -2, 0, Color::RED));
-    tetrominos.emplace_back(tetromino(assets::shapes::L, 3, -2, 0, Color::ORANGE));
-    tetrominos.emplace_back(tetromino(assets::shapes::L_mirrored, 3, -2, 0, Color::BLUE));
-    tetrominos.emplace_back(tetromino(assets::shapes::line, 3, -2, 0, Color::CYAN));
-    tetrominos.emplace_back(tetromino(assets::shapes::T, 3, -2, 0, Color:: PURPLE));
+    tetrominos.emplace_back(tetromino(assets::shapes::square, 2, -2, 0, Color::YELLOW));
+    tetrominos.emplace_back(tetromino(assets::shapes::N, 3, -2, 1, Color::GREEN));
+    tetrominos.emplace_back(tetromino(assets::shapes::N_mirrored, 3, -2, 1, Color::RED));
+    tetrominos.emplace_back(tetromino(assets::shapes::L, 3, -2, 1, Color::ORANGE));
+    tetrominos.emplace_back(tetromino(assets::shapes::L_mirrored, 3, -2, 3, Color::BLUE));
+    tetrominos.emplace_back(tetromino(assets::shapes::line, 3, -2, 1, Color::CYAN));
+    tetrominos.emplace_back(tetromino(assets::shapes::T, 3, -2, 2, Color:: PURPLE));
 }
 
 bool Board::can_move(int target_x, int target_y) 
@@ -172,6 +172,33 @@ void Board::move_shape_right()
     if (can_move(tetro.x + 1, tetro.y))
         tetro.x++;
 }
+
+void Board::clear_lines()
+{
+    for (int y = BOARD_OFFSET_y; y < GRID_HIEGHT-1; y++) 
+    {
+        if (is_line(grid[y]))
+        {
+            std:: cout << "line\n";
+            for(int y_shift = y - 1; y > BOARD_OFFSET_y; y--) {
+                for (int x = BOARD_OFFSET_X; x < BOARD_END_X; x++) {
+                    grid[y][x] = grid[y_shift][x];
+                }
+            }
+        }
+    }
+
+
+}
+
+bool Board::is_line(int row[GRID_WIDTH])
+{
+    for (int x = BOARD_OFFSET_X; x < BOARD_END_X; x++)
+        if (row[x] == 0) return false;
+    return true;
+
+
+} 
 
 void Board::draw(sf::RenderWindow& window)
 {
@@ -253,7 +280,10 @@ int main()
 
 
         window.clear();
+        board.clear_lines();
         board.draw(window);
+        // std::cout << "\n\n\n";
+        // board.print();
         window.display();
     }
 

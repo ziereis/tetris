@@ -6,6 +6,12 @@ namespace
 {
     const int BOARD_WIDTH = 10;
     const int BOARD_HEIGHT = 20;
+    const int GRID_WIDTH = 10 + 2 + 5 + 5;
+    const int GRID_HIEGHT = 20 + 1 + 5;
+    const int BOARD_OFFSET_X = 6;
+    const int BOARD_END_X = 15;
+    const int BOARD_OFFSET_y = 5;
+    const int BOARD_END_Y = 20;
     const int SQUARE_DIM = 40;
     const int OUTLINE_SIZE = 2;
     const int WINDOW_HEIGHT = BOARD_HEIGHT * SQUARE_DIM + OUTLINE_SIZE;
@@ -20,7 +26,7 @@ namespace assets
             {
             {0,0,0,0,0},
             {0,0,0,0,0}, 
-            {0,0,2,1,0}, 
+            {0,0,1,1,0}, 
             {0,0,1,1,0}, 
             {0,0,0,0,0} 
             };
@@ -29,7 +35,7 @@ namespace assets
             {
             {0,0,0,0,0},
             {0,0,1,0,0}, 
-            {0,0,2,0,0}, 
+            {0,0,1,0,0}, 
             {0,0,1,1,0}, 
             {0,0,0,0,0} 
             };
@@ -38,7 +44,7 @@ namespace assets
             {
             {0,0,0,0,0},
             {0,0,1,0,0}, 
-            {0,0,2,0,0}, 
+            {0,0,1,0,0}, 
             {0,1,1,0,0}, 
             {0,0,0,0,0} 
             };
@@ -47,7 +53,7 @@ namespace assets
             {
             {0,0,0,0,0},
             {0,0,1,0,0}, 
-            {0,0,2,0,0}, 
+            {0,0,1,0,0}, 
             {0,0,1,0,0}, 
             {0,0,1,0,0} 
             };
@@ -56,7 +62,7 @@ namespace assets
             {
             {0,0,0,0,0},
             {0,0,0,1,0}, 
-            {0,0,2,1,0}, 
+            {0,0,1,1,0}, 
             {0,0,1,0,0}, 
             {0,0,0,0,0} 
             };
@@ -65,7 +71,7 @@ namespace assets
             {
             {0,0,0,0,0},
             {0,0,1,0,0}, 
-            {0,0,2,1,0}, 
+            {0,0,1,1,0}, 
             {0,0,0,1,0}, 
             {0,0,0,0,0} 
             };
@@ -74,7 +80,7 @@ namespace assets
             {
             {0,0,0,0,0},
             {0,0,1,0,0}, 
-            {0,1,2,1,0}, 
+            {0,1,1,1,0}, 
             {0,0,0,0,0}, 
             {0,0,0,0,0} 
             };

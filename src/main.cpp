@@ -1,5 +1,4 @@
 #include <iostream>
-#include <SFML/Graphics.hpp>
 #include <thread>
 #include <chrono>
 
@@ -68,12 +67,6 @@ matI& tetromino::get_shape()
     return rotations[rotation_index];
 }
 
-void tetromino::rotate()
-{
-    std::cout << "called rotate\n";
-    rotation_index = (rotation_index + 1) % 4;
-    
-}
 
 void tetromino::reset()
 {
@@ -122,6 +115,32 @@ bool Board::can_move(int target_x, int target_y)
 
     return true;
 
+}
+
+void Board::rotate_shape()
+{
+    std::cout << "called rotate\n";
+    int rotation_index = (tetrominos[active_tetromino].rotation_index + 1) % 4;
+    if (can_rotate(rotation_index))
+        tetrominos[active_tetromino].rotation_index = rotation_index;
+}
+
+bool Board::can_rotate(int rotation)
+{
+    const tetromino& tetro = tetrominos[active_tetromino];
+
+    for (int y = 0; y < 4; y++)
+    {
+        int y_board_pos = tetro.y + BOARD_OFFSET_y + y;
+        for (int x = 0; x < 4; x++)
+        {   
+            int x_board_pos = tetro.x + BOARD_OFFSET_X + x;
+            if (grid[y_board_pos][x_board_pos] && tetro.rotations[rotation][y][x])
+                return false;
+        }
+    }
+
+    return true;
 }
 
 void Board::add_shape_to_board() {
@@ -180,9 +199,11 @@ void Board::clear_lines()
         if (is_line(grid[y]))
         {
             std:: cout << "line\n";
-            for(int y_shift = y - 1; y > BOARD_OFFSET_y; y--) {
-                for (int x = BOARD_OFFSET_X; x < BOARD_END_X; x++) {
-                    grid[y][x] = grid[y_shift][x];
+            for(int y_shift = y - 1; y_shift > BOARD_OFFSET_y; y_shift--) {
+                for (int x = BOARD_OFFSET_X; x < BOARD_END_X + 1; x++) {
+                    grid[y_shift + 1][x] = grid[y_shift][x]; 
+                    std::cout << "\n\n\n";
+                    print();
                 }
             }
         }
@@ -193,12 +214,20 @@ void Board::clear_lines()
 
 bool Board::is_line(int row[GRID_WIDTH])
 {
-    for (int x = BOARD_OFFSET_X; x < BOARD_END_X; x++)
+    for (int x = BOARD_OFFSET_X; x < BOARD_END_X + 1; x++)
         if (row[x] == 0) return false;
     return true;
 
 
 } 
+
+void Board::is_game_over()
+{
+    for (int x = BOARD_OFFSET_X; x < BOARD_END_X; x++) {
+        if (grid[BOARD_OFFSET_y][x] > 0) 
+            game_over = true;
+    }
+}
 
 void Board::draw(sf::RenderWindow& window)
 {
@@ -255,9 +284,12 @@ int main()
     Board board;
     sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "Tetris");
     board.print();
-    while (window.isOpen())
+
+    sf::Clock clock;
+
+    while (!board.game_over)
     {
-        bool collision;
+
         sf::Event event;
         while (window.pollEvent(event))
         {
@@ -274,12 +306,19 @@ int main()
                     }
                 }
                 if(sf::Keyboard::isKeyPressed(sf::Keyboard::W))
-                    board.tetrominos[board.active_tetromino].rotate();
+                    board.rotate_shape();
             }
+        }
+
+        if (clock.getElapsedTime().asMilliseconds() > 300) 
+        {
+            board.move_shape_down();
+            clock.restart();
         }
 
 
         window.clear();
+        board.is_game_over();
         board.clear_lines();
         board.draw(window);
         // std::cout << "\n\n\n";

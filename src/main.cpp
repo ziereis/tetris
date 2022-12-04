@@ -1,6 +1,7 @@
+#include <SFML/Graphics/RenderWindow.hpp>
+#include <SFML/Graphics/Text.hpp>
 #include <iostream>
-#include <thread>
-#include <chrono>
+#include <string>
 
 #include "main.hpp"
 
@@ -87,8 +88,8 @@ rect(sf::Vector2f(SQUARE_DIM - OUTLINE_SIZE, SQUARE_DIM - OUTLINE_SIZE))
 
     }
 
-    active_tetromino = 0;
-    rect.setOutlineColor(sf::Color::Black);
+    active_tetromino = rand() % 7;
+    rect.setOutlineColor(sf::Color(211,211,211, 50));
     rect.setOutlineThickness(OUTLINE_SIZE);
 
     tetrominos.emplace_back(tetromino(assets::shapes::square, 2, -2, 0, Color::YELLOW));
@@ -102,10 +103,10 @@ rect(sf::Vector2f(SQUARE_DIM - OUTLINE_SIZE, SQUARE_DIM - OUTLINE_SIZE))
 
 bool Board::can_move(int target_x, int target_y) 
 {
-    for (int y = 0; y < 4; y++)
+    for (int y = 0; y < 5; y++)
     {
         int y_board_pos = target_y + BOARD_OFFSET_y + y;
-        for (int x = 0; x < 4; x++)
+        for (int x = 0; x < 5; x++)
         {   
             int x_board_pos = target_x + BOARD_OFFSET_X+ x;
             if (grid[y_board_pos][x_board_pos] && tetrominos[active_tetromino].get_shape()[y][x])
@@ -129,10 +130,10 @@ bool Board::can_rotate(int rotation)
 {
     const tetromino& tetro = tetrominos[active_tetromino];
 
-    for (int y = 0; y < 4; y++)
+    for (int y = 0; y < 5; y++)
     {
         int y_board_pos = tetro.y + BOARD_OFFSET_y + y;
-        for (int x = 0; x < 4; x++)
+        for (int x = 0; x < 5; x++)
         {   
             int x_board_pos = tetro.x + BOARD_OFFSET_X + x;
             if (grid[y_board_pos][x_board_pos] && tetro.rotations[rotation][y][x])
@@ -147,10 +148,10 @@ void Board::add_shape_to_board() {
 
     tetromino& tetro = tetrominos[active_tetromino];
 
-    for (int y = 0; y < 4; y++)
+    for (int y = 0; y < 5; y++)
     {
         int y_board_pos = tetro.y + BOARD_OFFSET_y + y;
-        for (int x = 0; x < 4; x++)
+        for (int x = 0; x < 5; x++)
         {   
             int x_board_pos = tetro.x + BOARD_OFFSET_X + x;
             if (tetro.get_shape()[y][x]) {
@@ -194,6 +195,7 @@ void Board::move_shape_right()
 
 void Board::clear_lines()
 {
+    int lines{};
     for (int y = BOARD_OFFSET_y; y < GRID_HIEGHT-1; y++) 
     {
         if (is_line(grid[y]))
@@ -206,9 +208,33 @@ void Board::clear_lines()
                     print();
                 }
             }
+        ++lines;
+        ++m_lines;
+        if ((m_lines +1) % 11 == 0)
+        {
+            ++m_level;
+            m_speed = m_speed/2;
+        }
         }
     }
 
+
+    switch(lines)
+    {
+        case 1:
+            std::cout << "line\n";
+            m_score+=40;
+            break;
+        case 2:
+            m_score+=100;
+            break;
+        case 3:
+            m_score+=300;
+            break;
+        case 4:
+            m_score+= 1200;
+            break;
+    }
 
 }
 
@@ -231,7 +257,6 @@ void Board::is_game_over()
 
 void Board::draw(sf::RenderWindow& window)
 {
-    rect.setFillColor(sf::Color(211,211,211));
 
     for (int y = 0; y < BOARD_HEIGHT; y++) 
     {
@@ -249,10 +274,10 @@ void Board::draw(sf::RenderWindow& window)
 
     tetromino& tetro = tetrominos[active_tetromino];
     rect.setFillColor(color_map.at(tetro.color));
-    for (int y = 0; y < 4; y++)
+    for (int y = 0; y < 5; y++)
     {
         int y_board_pos = tetro.y + y;
-        for (int x = 0; x < 4; x++)
+        for (int x = 0; x < 5; x++)
         {   
         int x_board_pos = tetro.x + x;
             if (tetro.get_shape()[y][x])
@@ -278,18 +303,95 @@ void Board::print()
     }
 }
 
-
-int main()
-{   
+void main_game(sf::RenderWindow& window)
+{
     Board board;
-    sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "Tetris");
-    board.print();
+
+    sf::Font font;
+
+    if(!font.loadFromFile("arial.ttf"));
+        std::cout << "couldnt load font\n";
+
+    sf::Text score;
+    score.setFont(font);
+    score.setCharacterSize(24);
+    score.setPosition(450, 50);
+    score.setStyle(sf::Text::Bold);
+
+    sf::Text level;
+    level.setFont(font);
+    level.setCharacterSize(24);
+    level.setPosition(450, 100);
+    level.setStyle(sf::Text::Bold);
+
+    sf::Text lines;
+    lines.setFont(font);
+    lines.setCharacterSize(24);
+    lines.setPosition(450, 150);
+    lines.setStyle(sf::Text::Bold);
 
     sf::Clock clock;
 
     while (!board.game_over)
     {
+        sf::Event event;
+        while (window.pollEvent(event))
+        {
+            if (event.type == sf::Event::Closed)
+                window.close();
 
+            if (event.type == sf::Event::KeyPressed) 
+            {
+                if(sf::Keyboard::isKeyPressed(sf::Keyboard::D))
+                    board.move_shape_right();
+                if(sf::Keyboard::isKeyPressed(sf::Keyboard::A))
+                    board.move_shape_left();
+                if(sf::Keyboard::isKeyPressed(sf::Keyboard::S)) 
+                    board.move_shape_down();
+                if(sf::Keyboard::isKeyPressed(sf::Keyboard::W))
+                    board.rotate_shape();
+            }
+        }
+
+        if (clock.getElapsedTime().asMilliseconds() > board.m_speed) 
+        {
+            board.move_shape_down();
+            clock.restart();
+        }
+
+        score.setString("Score: " + std::to_string(board.m_score));
+        level.setString("Level: " + std::to_string(board.m_level));
+        lines.setString("Lines: " + std::to_string(board.m_lines));
+
+        window.clear();
+        board.is_game_over();
+        board.clear_lines();
+        board.draw(window);
+        window.draw(score);
+        window.draw(level);
+        window.draw(lines);
+        window.display();
+    }
+    
+
+}
+
+void after_game(sf::RenderWindow& window)
+{
+    sf::Font font;
+
+    if(!font.loadFromFile("arial.ttf"));
+        std::cout << "couldnt load font\n";
+
+    sf::Text gameOverText;
+    gameOverText.setFont(font);
+    gameOverText.setCharacterSize(24);
+    gameOverText.setPosition((WINDOW_WIDTH-250)/ 2, WINDOW_HEIGHT/2);
+    gameOverText.setStyle(sf::Text::Bold);
+    gameOverText.setString("Game Over, Pess Enter to play again");
+    bool flag = true;
+    while(flag)
+    {
         sf::Event event;
         while (window.pollEvent(event))
         {
@@ -297,35 +399,26 @@ int main()
                 window.close();
             if (event.type == sf::Event::KeyPressed) 
             {
-                if(sf::Keyboard::isKeyPressed(sf::Keyboard::D))
-                    board.move_shape_right();
-                if(sf::Keyboard::isKeyPressed(sf::Keyboard::A))
-                    board.move_shape_left();
-                if(sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
-                    if (board.move_shape_down()){
-                    }
-                }
-                if(sf::Keyboard::isKeyPressed(sf::Keyboard::W))
-                    board.rotate_shape();
+                if(sf::Keyboard::isKeyPressed(sf::Keyboard::Enter))
+                    flag = false;
             }
         }
-
-        if (clock.getElapsedTime().asMilliseconds() > 300) 
-        {
-            board.move_shape_down();
-            clock.restart();
-        }
-
-
         window.clear();
-        board.is_game_over();
-        board.clear_lines();
-        board.draw(window);
-        // std::cout << "\n\n\n";
-        // board.print();
+        window.draw(gameOverText);
         window.display();
+
     }
 
+}
 
 
+int main()
+{
+
+    sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH + 200, WINDOW_HEIGHT), "Tetris");
+    while (window.isOpen())
+    {
+        main_game(window);
+        after_game(window);
+    }
 }

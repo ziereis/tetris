@@ -14,7 +14,7 @@ enum Color
     BLUE,
     GREEN,
     RED,
-    GREY = 0
+    BLACK = 0
 };
 
 struct vec2i {
@@ -57,9 +57,13 @@ public:
         {Color::YELLOW, sf::Color::Yellow},
         {Color::CYAN, sf::Color(0, 100, 100)},
         {Color::ORANGE, sf::Color(255,165,0)},
-        {Color::GREY, sf::Color(211,211,211)}
+        {Color::BLACK, sf::Color::Black}
 
     };
+    int m_lines{0};
+    int m_score{};
+    int m_level{1};
+    double m_speed{300};
     bool game_over{false};
     int active_tetromino;
     int grid[GRID_HIEGHT][GRID_WIDTH];
